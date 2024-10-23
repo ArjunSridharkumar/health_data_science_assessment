@@ -41,22 +41,26 @@ llm = OpenAI(openai_api_key=api_key, temperature=0.5)
 if st.button("Find Trials"):
     if patient_profile:
         patient_embedding = create_embedding(patient_profile)
+        distances, indices = faiss_index.index.search(patient_embedding, k=5)
+        if len(indices) > 0 and indices[0][0] != -1:
         # closest_trials = faiss_index.similarity_search_by_vector(patient_embedding, k=5)
-        top_5_trials = [trial_descriptions[idx] for idx in indices[0]]
-        # top_5_trials = [trial_descriptions[trial.metadata["id"]] for trial in closest_trials]
-        trial_list = "\n".join([f"Trial {i+1}: {desc}" for i, desc in enumerate(top_5_trials)])
-        prompt = f"""
-        Based on the following patient profile:
-        {patient_profile}
-        Here are 5 potential clinical trials:
-        {trial_list}
-        Please choose the most relevant clinical trial for this patient and explain why it is the best match.
-        """
-        llm_response = llm(prompt)
-        st.write("LLM Recommended Trial:")
-        st.write(llm_response)
-        st.write("Top 5 matching clinical trials:")
-        for i, desc in enumerate(top_5_trials):
-            st.write(f"- Trial {i+1}: {desc}")
+            top_5_trials = [trial_descriptions[idx] for idx in indices[0]]
+            # top_5_trials = [trial_descriptions[trial.metadata["id"]] for trial in closest_trials]
+            trial_list = "\n".join([f"Trial {i+1}: {desc}" for i, desc in enumerate(top_5_trials)])
+            prompt = f"""
+            Based on the following patient profile:
+            {patient_profile}
+            Here are 5 potential clinical trials:
+            {trial_list}
+            Please choose the most relevant clinical trial for this patient and explain why it is the best match.
+            """
+            llm_response = llm(prompt)
+            st.write("LLM Recommended Trial:")
+            st.write(llm_response)
+            st.write("Top 5 matching clinical trials:")
+            for i, desc in enumerate(top_5_trials):
+                st.write(f"- Trial {i+1}: {desc}")
+        else:
+                    st.write("No matching trials found.")
     else:
         st.write("Please enter a patient profile.")
