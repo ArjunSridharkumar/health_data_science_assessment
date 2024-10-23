@@ -4,3 +4,4 @@ faiss-cpu
 torch
 transformers
 sentence-transformers
+openai
