@@ -41,8 +41,9 @@ llm = OpenAI(openai_api_key=api_key, temperature=0.5)
 if st.button("Find Trials"):
     if patient_profile:
         patient_embedding = create_embedding(patient_profile)
-        closest_trials = faiss_index.similarity_search_by_vector(patient_embedding, k=5)
-        top_5_trials = [trial_descriptions[trial.metadata["id"]] for trial in closest_trials]
+        # closest_trials = faiss_index.similarity_search_by_vector(patient_embedding, k=5)
+        top_5_trials = [trial_descriptions[idx] for idx in indices[0]]
+        # top_5_trials = [trial_descriptions[trial.metadata["id"]] for trial in closest_trials]
         trial_list = "\n".join([f"Trial {i+1}: {desc}" for i, desc in enumerate(top_5_trials)])
         prompt = f"""
         Based on the following patient profile:
